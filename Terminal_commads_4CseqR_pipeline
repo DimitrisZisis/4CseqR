@@ -1,0 +1,18 @@
+Bedtools is intended to run in a “command line” environment on UNIX, LINUX and Apple OS X operating systems. 
+There are specific processes during the 4CseqR pipeline where we are using bedtools:
+
+#Run bedtools "getfastsa" in order to get the fasta file format from bed file format 
+bedtools getfasta -fi arabidopsis.fas -bed fragment_endsAllChrAGATCT100length.bed -fo fragment_endsAllChrAGATCT100length.fa
+
+
+#Run the bedtools sort
+bedtools sort -i results1_5_100leng.bed > results1_5_100leng_sorted.bed
+
+#Run the bedtools intersect 
+ bedtools intersect -a fragments_AthalianaAGATCTAllChrBlind100lenghtdelcol.bed -b results1_6_100leng_sorted.bed -wa -wb > intersect1_6leng100.txt
+
+The above result from bedtools is the input to puthon script which merges and finaly creates the input for normalization
+
+#Run the python script 
+python merge_4Cnew2.py intersect1_3leng100.txt> finaltable1_3leng100.csv
+
