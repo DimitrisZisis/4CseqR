@@ -90,7 +90,7 @@ normalization_ranks_3prime_end<- function (input_filename, categories_left, cate
   lenght = MyData$end - MyData$start
   middle = (MyData$end + MyData$start)/2
   
-  #replace 0 with 1 if there are ???????
+  #replace 0 with 1 if there are
   MyData$IsNonBlind <- as.character(MyData$IsNonBlind)
   MyData$IsNonBlind[MyData$IsNonBlind %in% c("TRUE")] <- 0
   MyData$IsNonBlind[MyData$IsNonBlind %in% c("FALSE")] <- 1
@@ -99,10 +99,6 @@ normalization_ranks_3prime_end<- function (input_filename, categories_left, cate
   ldist = MyData$lefS
   rdist =MyData$rigS
   #create categories of distance and lenght 
-  head(ldist)
-  str(ldist)
-  str(factor(ldist))
-  #2nd way using fingInterval
   fldist<-categories_left[
     findInterval(ldist , c(-Inf, 51, 101, 151, 201, 251, 301, 351, 401, Inf) ) ]
   frdist <- categories_right [
@@ -135,14 +131,16 @@ normalization_ranks_3prime_end<- function (input_filename, categories_left, cate
     #U3=cbind(as.character(ach3[[kk]]),arst3[[kk]],aren3[[kk]],ac3[[kk]],rank3[[kk]],at3[[kk]])
     
   }
-  #return(U3)
+  total_results_3prime=NULL
   for (kk in 1:nlev) {
     rank_results_3prime=cbind(as.character(ach3[[kk]]),arst3[[kk]],aren3[[kk]],ac3[[kk]],rank3[[kk]],at3[[kk]])
+    total_results_3prime <- rbind(total_results_3prime, rank_results_3prime)
   }
-  return(rank_results_3prime)
+  return(total_results_3prime)
 }
-#normalization by Ranks for the 3 prime ends 
-normalization_ranks_5prime_end<- function (input_filename, categories_left, categories_right, categories_lenght ){
+
+#normalization by Ranks for the 5 prime ends 
+normalization_ranks_5prime_end <- function (input_filename, categories_left, categories_right, categories_lenght ){
   MyData <- read.table (input_filename,header = TRUE)
   #check if any row of each column is 0
   any(MyData$rigS == 0)
@@ -150,27 +148,23 @@ normalization_ranks_5prime_end<- function (input_filename, categories_left, cate
   lenght = MyData$end - MyData$start
   middle = (MyData$end + MyData$start)/2
   
-  #replace 0 with 1 if there are ???????
+  #replace 0 with 1 if there are 
   MyData$IsNonBlind <- as.character(MyData$IsNonBlind)
   MyData$IsNonBlind[MyData$IsNonBlind %in% c("TRUE")] <- 0
   MyData$IsNonBlind[MyData$IsNonBlind %in% c("FALSE")] <- 1
   fblind <- MyData$IsNonBlind
   #calculate left and right distance
   ldist = MyData$lefS
-  rdist =MyData$rigS
+  rdist = MyData$rigS
   #create categories of distance and lenght 
-  head(ldist)
-  str(ldist)
-  str(factor(ldist))
-  #2nd way using fingInterval
-  fldist<-categories_left[
+  fldist <- categories_left [
     findInterval(ldist , c(-Inf, 51, 101, 151, 201, 251, 301, 351, 401, Inf) ) ]
   frdist <- categories_right [
     findInterval(rdist , c(-Inf, 51, 101, 151, 201, 251, 301, 351, 401, Inf) ) ]
-  flenght <- categories_lenght[
+  flenght <- categories_lenght [
     findInterval(lenght , c(-Inf, 51, 101, 151, 201, 401, 601, 801,  Inf) ) ]
   
-  kat5 <- cbind(fblind,fldist,flenght)
+  kat5 <- cbind(fblind,frdist,flenght)
   #Normalization for 5 prime ends
   V5=paste(kat5[,1],kat5[,2],kat5[,3])
   at5=sort(unique(V5))
@@ -181,21 +175,24 @@ normalization_ranks_5prime_end<- function (input_filename, categories_left, cate
   ac5=NULL
   ac5h=NULL
   rank5=NULL
+  
   for (kk in 1:nlev){
     ach5[[kk]]=MyData$Chromosome[which(V5==at5[kk])]
     arst5[[kk]]=MyData$start[which(V5==at5[kk])]
     aren5[[kk]]=MyData$end[which(V5==at5[kk])]
-    ac5[[kk]]=MyData$estim5[which(V5==at5[kk])]
+    ac5[[kk]]= MyData$estim5[which(V5==at5[kk])]
     v5=ac5[[kk]]
     v5[which(v5==0)]=NA
     rank5[[kk]]=rank(v5,na.last=FALSE)
     rank5[[kk]]=rank5[[kk]]/length(v5)
     rank5[[kk]][is.na(v5)] <- 0
+    #U3=cbind(as.character(ach3[[kk]]),arst3[[kk]],aren3[[kk]],ac3[[kk]],rank3[[kk]],at3[[kk]])
+    
   }
-  #Print results for each category 
+  total_results_5prime = NULL
   for (kk in 1:nlev) {
     rank_results_5prime=cbind(as.character(ach5[[kk]]),arst5[[kk]],aren5[[kk]],ac5[[kk]],rank5[[kk]],at5[[kk]])
+    total_results_5prime <- rbind(total_results_5prime, rank_results_5prime)
   }
-  
-  return(rank_results_5prime)
+  return(total_results_5prime)
 }

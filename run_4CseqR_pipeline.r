@@ -68,10 +68,12 @@ categories_left = c("50", "100", "150", "200", "400","600", "800", ">800")
 categories_right = c("50", "100", "150", "200","250", "300", "350", "400",">400")
 categories_lenght = c("50", "100", "150", "200", "400","600", "800", ">800")
 NormalizationRanks3= normalization_ranks_3prime_end(input_filename, categories_left, categories_right, categories_lenght)
+
 #normalization for 5 prime ends 
 NormalizationRanks5= normalization_ranks_5prime_end(input_filename, categories_left, categories_right, categories_lenght)
 write.table(NormalizationRanks3, file = "rank3.txt", append=TRUE , quote = FALSE,  sep = "\t", row.names=FALSE , col.names=FALSE)
 write.table(NormalizationRanks5, file = "rank5.txt", append=TRUE , quote = FALSE,  sep = "\t", row.names=FALSE , col.names=FALSE)
+
 #sort the normalization rank results by chromosome and calculate the total normalization for both 3 and 5 prime ends 
 rank_data5 <- read.table(file= "/home/dimitris/rank5.txt", header=FALSE, sep="\t")
 rank_data3 <- read.table(file= "/home/dimitris/rank5.txt", header=FALSE, sep="\t")
@@ -81,6 +83,6 @@ totnormal = sort_data5$V5 + sort_data3$V5
 total_normalized_coverage=cbind(as.character(sort_data3$V1),totnormal)
 write.table(total_normalized_coverage, file = "total_normalized_coverage.txt", append=TRUE , quote = FALSE,  sep = "\t", row.names=FALSE , col.names=FALSE)
 
-#Statistical analysis (ANOVA,pairwise test etc)
+
 
 
