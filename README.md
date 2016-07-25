@@ -122,7 +122,7 @@ Chr1	|28279|	29959	|TRUE|	66|	127|	6|	6|	6|	51|	51|	51|
 
 **5. Normalization**
 
-The counts of reads are normalized according to the procedure based on ranking within classes of fragments (blind/non blind, length of ends, total length). Ranks within each category are expressed in the scale from 0 to 1 and the total coverage of 5’ and 3’ ends is expressed as a value from 0 to 2. The input of the R function is the input_filename and the categories of distance and length (lefS_categories_name, lefS_categories_limits, rigS_categories_name, rigS_categories_limits, lenght_categories_names, lenght_categories_limits) based to the needs of each experiment. To normalize the example data:
+The counts of reads are normalized according to the procedure based on ranking within classes of fragments (blind/non blind, length of ends, total length). Ranks within each category are expressed in the scale from 0 to 1 and the total coverage of 5’ and 3’ ends is expressed as a value from 0 to 2. The input of the R function is the input_filename and the categories of distance and length (lefS_categories_limits, rigS_categories_limits,lenght_categories_limits) based to the needs of each experiment. To normalize the example data:
 ```
 input_filename = "/home/dimitris/4CseqR/Data/finaltable1_5leng100.csv"
 lefS_categories_limits = c(50, 100, 150, 200, 250, 300, 350, 400)
