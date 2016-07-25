@@ -43,7 +43,6 @@ cat(readLines(Athaliana_seed), sep="\n")
 
 libraryName = "fragments_Athalian.csv"
 
-#Create the fragments for all chromosomes 
 require(BSgenome.Athaliana.TAIR.TAIR9)
 createVirtualFragmentLibrary(chosenGenome = Athaliana, firstCutter = "AGATCT", secondCutter = "CATG", readLength = 50, onlyNonBlind = FALSE, chromosomeName = Chr, libraryName = libraryName)
 
@@ -77,7 +76,6 @@ The restiction_filename which includes the restriction enzyme is also used as pa
 primer_filename = "/home/dimitris/4CseqR/Data/primer_seq.txt"
 restriction_filename = "/home/dimitris/4CseqR/Data/restriction_seq.txt"
 fastq_filename = "/home/dimitris/4CseqR/Data/INDEX_1_5.fq"
-# Run the triming the reads in fastq files
 PrimerSeq <- readLines(primer_filename)
 RestrEnzyme <- readLines(restriction_filename)
 SelectReads=select.reads(fastq_filename, PrimerSeq[1], RestrEnzyme[1], pattern)
@@ -107,7 +105,7 @@ The result of express script is (*.xprs files) a table  with the 5’ end  and 3
 2) estimated number of reads 
 3) unique number of reads, and the coordinates of the fragments in which those reads are found. 
 
-ommand line,bedtools and a python script are used in order to  create the proper input for normalization. An R script (*Xprs_to_bed.r*) is provided to create bed files and the Terminal_4CseqR.txt file describes the steps which are necessary in order to have the proper .csv input in the normalization function. 
+Command line,bedtools and a python script (*merge_4cnew.py*) are used in order to create the proper input for normalization. An R script (*Xprs_to_bed.r*) is provided to create bed files and the Terminal_4CseqR.txt file describes the steps which are necessary in order to have the proper .csv input in the normalization function. 
 
 In the.csv file (finaltable1_5leng100.csv in the example experiment) there are informations about:
 Chromosome ID, start and end position of the fragment, information about blind and non blind (IsNonBlind), left and right fragment length (lefS, rigS) and also the total, unique and estimate coverage as it is calculated from eXpress( total5, unique5, estim5, , total3, unique3, estim3)
