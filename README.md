@@ -36,27 +36,28 @@ A library of restriction fragments and fragment end sequences is part of the sta
 
 To create the library of fragments for Arabidopsis thaliana genome, in 4CseqR we are using the function *createVirtualFragmentLibrary* from Basic4Cseq tool. Two restriction enzymes have to be specified that cut the DNA, the read length is needed to check the fragment ends of corresponding length for uniqueness. Filtering options (minimum and maximum size) are provided on fragment level and on fragment end level: 
 ```
-# Display seed file for A. thaliana TAIR10:
 seed_files <- system.file("extdata", "GentlemanLab", package="BSgenome")
 tail(list.files(seed_files, pattern="-seed$"))
-Athaliana_seed<-list.files(seed_files,pattern="Bsgenome.Athaliana.TAIR.TAIR9-seed$", full.names=TRUE)
+Athaliana_seed <- list.files(seed_files, pattern="BSgenome.Athaliana.TAIR.TAIR9-seed$", full.names=TRUE)
 cat(readLines(Athaliana_seed), sep="\n")
-libraryName = "fragments_Athalianatest.csv"
+
+libraryName = "fragments_Athalian.csv"
+
 #Create the fragments for all chromosomes 
 require(BSgenome.Athaliana.TAIR.TAIR9)
 createVirtualFragmentLibrary(chosenGenome = Athaliana, firstCutter = "AGATCT", secondCutter = "CATG", readLength = 50, onlyNonBlind = FALSE, chromosomeName = Chr, libraryName = libraryName)
+
 ```
 In case of the example experiment only fragments longer than 100 nucleotides were used for mapping. For this reason there is  the *data.filtered* function to filter fragments:
 ```
 fragmentLenght = 100
 newfragments=data.filtered(libraryName, fragmentLenght)
-filteredLibraryName = "fragments_Athalianaall100test.csv"
-write.table(newfragments, file = filteredLibraryName,quote = FALSE,row.names=FALSE , sep="\t")  
+filteredLibraryName = "fragments_Athaliana100.csv"
+write.table(newfragments, file = filteredLibraryName,quote = FALSE,row.names=FALSE , sep="\t")
 ```
-After the creation of library of fragments 4CseqR pipeline provides another R function *fragment.ends* for the creation or the library of fragment ends. By analyzing the length (in this experiment is 50) and the sequence of the restriction enzyme (in this experiment is AGATCT) we calculate fragment ends around the start and end position of each fragment as bellow:
+After the creation of library of fragments 4CseqR pipeline provides another R function *fragment.ends* for the creation of the library of fragment ends. By analyzing the length (in this experiment is 50) of fragments and the sequence of the restriction enzyme (in this experiment is AGATCT) we calculate fragment ends of the same length from the start and end position of each fragment as bellow:
 
 ```
-
 fragment__start_min <- filteredLibraryName[,2]-7
 fragment_start_plus<- filteredLibraryName[,2]+43
 fragment_end_plus<- filteredLibraryName[,3]+6
@@ -64,7 +65,7 @@ fragment_end_min <- filteredLibraryName[,3]-44
 FragmentEnds=fragment.ends(filteredLibraryName,fragment__start_min,fragment_start_plus,fragment_end_plus,fragment_end_min)
 
 ```
-The resulting table with fragment ends is saved in .bed format and is used in bedtools to create the fasta file which will be input to the mapping procedure. A script (*getfasta.sh*) has been provided for this reason. 
+The resulting table with fragment ends is saved in .bed format and is used in bedtools to create the fasta file which will be the input to the mapping procedure. A script (*getfasta.sh*) has been provided for this reason. 
 
 **2. Data Preprocessing**
 
@@ -73,25 +74,27 @@ The resulting table with fragment ends is saved in .bed format and is used in be
 The user have to create two text files (primer_filename, restriction_filename) with the primer sequences and the enzyme recognition sequences for each experiment  and also the fastq read files (fastq_filename). 
 The restiction_filename which includes the restriction enzyme is also used as pattern in the trimming step of this function for the specific experiment.
 ```
-primer_filename = "path to the directory where primer.txt is t"
-restriction_filename = "patht to the directory where bait.txt is "
-fastq_filename="path to the directory where fastq file is"
+primer_filename = "/home/dimitris/4CseqR/Data/primer_seq.txt"
+restriction_filename = "/home/dimitris/4CseqR/Data/restriction_seq.txt"
+fastq_filename = "/home/dimitris/4CseqR/Data/INDEX_1_5.fq"
+# Run the triming the reads in fastq files
 PrimerSeq <- readLines(primer_filename)
 RestrEnzyme <- readLines(restriction_filename)
 SelectReads=select.reads(fastq_filename, PrimerSeq[1], RestrEnzyme[1], pattern)
 writeFastq(SelectReads, paste("INDEX_1_5", sep="_", "treatment_results.fq"))
+
 ```
 
 Another additional process which can be done in preprocessing is the filtering of short reads in the output file which can be done by grep 
 ```
 select_reads <- grep("^.{31}$", sread(SelectReads))
 SelectReads <- SelectReads[select_reads]
-writeFastq(SelectReads, paste("INDEX_1_5", "_Perfect31.fq", sep=""))
+writeFastq(SelectReads, paste("INDEX_1_5", "_treatment_results31.fq", sep=""))
 ```
 
 **3. Mapping of primer sequence and Mapping of reads**
 
-The reads were mapped to the library of all AGATCT fragment 5' and 3' ends (of 50 bp length) from the TAIR10 genome used as the reference. Mapping was conducted by Bowtie2 in all positions with up to 2 mismatches allowed in the contact region only and without mismatches in the restriction sequence. The reads mapped to both fragment ends are combined for further analysis. A script (*mapping.sh*) is provided for this step. 
+The reads were mapped to the library of all AGATCT fragment 5' and 3' ends (of 100 bp length) from the TAIR10 genome used as the reference. Mapping was conducted by Bowtie2 in all positions with up to 2 mismatches allowed in the contact region only and without mismatches in the restriction sequence. The reads mapped to both fragment ends are combined for further analysis. A script (*mapping.sh*) is provided for this step. 
 
 
 
@@ -99,11 +102,15 @@ The reads were mapped to the library of all AGATCT fragment 5' and 3' ends (of 5
 
 4CseqR provides a script (*run_express.sh*) which is taking care about the non-uniquely mapped reads  especially in the pericentromeric region of each chromosome.  The pipeline applies the algorithm eXpress [Roberts and Pachter (2013)] for correction of estimated coverage with respect to non-uniquely mapped reads. The coverage is calculated as a value between „all” and „unique” mapping. By using this method we are able to estimate the coverage of a set of "target" reference sequences by NGS reads using a probabilistic model.
 
-The result of express script is (*.xprs files) a table  with the 5’ end  and 3’ end mapping results based on the : 1) total number of reads 2) estimated number of reads 3) unique number of reads, and the coordinates of the fragments in which those reads are found. 
-Command line,bedtools and a python script are used in order to  create the proper input for normalization. An R script (*Xprs_to_bed.r*) is provided to create bed files and the Terminal_commads_4CseqR file describes the steps which are necessary in order to have the proper .csv input in the normalization function. 
+The result of express script is (*.xprs files) a table  with the 5’ end  and 3’ end mapping results based on the : 
+1) total number of reads 
+2) estimated number of reads 
+3) unique number of reads, and the coordinates of the fragments in which those reads are found. 
+
+ommand line,bedtools and a python script are used in order to  create the proper input for normalization. An R script (*Xprs_to_bed.r*) is provided to create bed files and the Terminal_4CseqR.txt file describes the steps which are necessary in order to have the proper .csv input in the normalization function. 
 
 The finaltable1_5leng100.csv is the file in which there are informations about:
-Chromosome ID, start and end position of the fragment, IsNonBlind, left and right length (lefS, rigS) and also the total, unique and estimate coverage as it is calculated from eXpress( total5, unique5, estim5, , total3, unique3, estim3)
+Chromosome ID, start and end position of the fragment, information about blind and non blind (IsNonBlind), left and right fragment length (lefS, rigS) and also the total, unique and estimate coverage as it is calculated from eXpress( total5, unique5, estim5, , total3, unique3, estim3)
 
 Chromosome	| start	| end	| IsNonBlind|	lefS |	rigS|	total5|	unique5	|estim5|	total3|	unique3	|estim3
 ------------|-------|-----|-----------|------|------|-------|--------|-------|--------|--------|-------|
@@ -118,7 +125,6 @@ Chr1	|28279|	29959	|TRUE|	66|	127|	6|	6|	6|	51|	51|	51|
 The counts of reads are normalized according to the procedure based on ranking within classes of fragments (blind/non blind, length of ends, total length). Ranks within each category are expressed in the scale from 0 to 1 and the total coverage of 5’ and 3’ ends is expressed as a value from 0 to 2. The input of the R function is the input_filename and the categories of distance and length (lefS_categories_name, lefS_categories_limits, rigS_categories_name, rigS_categories_limits, lenght_categories_names, lenght_categories_limits) based to the needs of each experiment. To normalize the example data:
 ```
 input_filename = "/home/dimitris/4CseqR/Data/finaltable1_5leng100.csv"
-#Create categories of distance and length (edit the limits to change intervals)
 lefS_categories_limits = c(50, 100, 150, 200, 250, 300, 350, 400)
 rigS_categories_limits = c(50, 100, 150, 200, 250, 300, 350, 400)
 lenght_categories_limits = c(50, 100, 150, 200, 400, 600, 800)
