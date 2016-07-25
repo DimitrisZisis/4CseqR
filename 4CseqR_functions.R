@@ -61,7 +61,7 @@ select.reads  <- function (filename,PrimerSeq,RestrEnzyme,pattern){
 }
 
 #normalization by Ranks for the 3 and 5 prime ends
-normalization_ranks_prime_end<- function (input_filename){
+normalization_ranks<- function (input_filename,lefS_categories_limits,rigS_categories_limits, lenght_categories_limits){
   MyData <- read.table (input_filename,header = TRUE)
   #check if any row of each column is 0
   any(MyData$rigS == 0)
@@ -78,9 +78,21 @@ normalization_ranks_prime_end<- function (input_filename){
   ldist = MyData$lefS
   rdist =MyData$rigS
   #create categories of distance and length (edit the limits to change intervals)
-  fldist = lefS_categories_name [findInterval(ldist , lefS_categories_limits ) ]
-  frdist = rigS_categories_name [findInterval(rdist , rigS_categories_limits ) ]
-  flenght = lenght_categories_names [findInterval(lenght , lenght_categories_limits ) ]
+  l = factor(lefS_categories_limits)
+  maxlabel = paste(">", max(lefS_categories_limits), sep="")
+  l[length(l) + 1] <- levels(l)[length(l)+1] <- maxlabel
+  
+  r = factor(rigS_categories_limits)
+  maxlabel = paste(">", max(rigS_categories_limits), sep="")
+  r[length(r) + 1] <- levels(r)[length(r)+1] <- maxlabel
+  
+  len = factor(lenght_categories_limits)
+  maxlabel = paste(">", max(lenght_categories_limits), sep="")
+  len[length(len) + 1] <- levels(len)[length(len)+1] <- maxlabel
+  
+  fldist = l[findInterval(ldist , lefS_categories_limits+1 )+1]
+  frdist = r[findInterval(rdist , rigS_categories_limits+1 )+1]
+  flenght = len [findInterval(lenght , lenght_categories_limits+1 )+1 ]
   
   kat3 <- cbind(fblind,frdist,flenght)
   kat5 <- cbind(fblind,frdist,flenght)
