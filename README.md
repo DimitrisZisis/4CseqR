@@ -109,7 +109,7 @@ The result of express script is (*.xprs files) a table  with the 5’ end  and 3
 
 ommand line,bedtools and a python script are used in order to  create the proper input for normalization. An R script (*Xprs_to_bed.r*) is provided to create bed files and the Terminal_4CseqR.txt file describes the steps which are necessary in order to have the proper .csv input in the normalization function. 
 
-The finaltable1_5leng100.csv is the file in which there are informations about:
+In the.csv file (finaltable1_5leng100.csv in the example experiment) there are informations about:
 Chromosome ID, start and end position of the fragment, information about blind and non blind (IsNonBlind), left and right fragment length (lefS, rigS) and also the total, unique and estimate coverage as it is calculated from eXpress( total5, unique5, estim5, , total3, unique3, estim3)
 
 Chromosome	| start	| end	| IsNonBlind|	lefS |	rigS|	total5|	unique5	|estim5|	total3|	unique3	|estim3
